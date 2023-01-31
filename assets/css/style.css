@@ -80,9 +80,10 @@ textarea {
   align-items: center;
   justify-content: space-between;
   border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 0.5em;
   height: 6em;
   width: 100%;
-  margin: -1px;
+  margin: 0.5em;
 }
 
 .timeBlock:last-child {

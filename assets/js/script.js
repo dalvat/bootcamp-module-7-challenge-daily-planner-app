@@ -1,20 +1,24 @@
 let timeBlocksContainer = $('#time-block');
 let currentDay = $('#current-day');
 
+// array containing standard working hours (9-5)
 let workingHours = [9, 10, 11, 12, 13, 14, 15, 16, 17];
 
+// init function calls functions to initialise page
 function init() {
   createTimeBlocks();
-  showTime();
+  showDate();
   newDayCheck();
-  console.log(newDayCheck());
+  // only populates tasks if the newDayCheck function returns false
   if (newDayCheck() === false) {
     populateTasks();
   };
 };
 
+// init function called to initialise page
 init()
 
+// function to create time blocks from workingHours array above
 function createTimeBlocks() {
   workingHours.forEach(function(i) {
     let timeBlock = $('<div>');
@@ -31,10 +35,12 @@ function createTimeBlocks() {
     timeBlockTask.addClass('timeBlockTask');
     timeBlockSave.addClass('saveBtn timeBlockSave');
     timeBlockHour.addClass('timeBlockHour');
+    // time-stamp added to each time block for identification purposes later
     timeBlock.attr('time-stamp', i);
     timeBlockTask.attr('id', 'task-' + i + '-input');
     timeBlockTask.attr('placeholder', 'Add event');
     timeBlockSave.attr('id', 'task-' + i + '-save');
+    // adds preceding "0" to 8 and 9 so all times are displayed consistently
     if(i === 8 || i === 9) {
       timeBlockHour.text('0' + i + ':00')
     } else {
@@ -52,12 +58,15 @@ function createTimeBlocks() {
   });
 };
 
+// allButtons array defined to be able to idenfify when any save button is clicked
 let allButtons= $('#time-block').children().children('button')
 
-function showTime() {
+// shows the current day and date at the top of the page
+function showDate() {
   currentDay.text(moment().format('dddd, Do MMMM'))
 };
 
+// setInterval repeats every 30 seconds to see if the timeblocks should be coloured as "past" "present" or "future"
 setInterval(function(timeStamp, currentHour) {
   timeStamp = [$('[time-stamp=9]'), $('[time-stamp=10]'), $('[time-stamp=11]'), $('[time-stamp=12]'), $('[time-stamp=13]'), $('[time-stamp=14]'), $('[time-stamp=15]'), $('[time-stamp=16]'), $('[time-stamp=17]')];
   currentHour = moment().format('HH');
@@ -74,6 +83,8 @@ setInterval(function(timeStamp, currentHour) {
   };
 }, 30,000);
 
+// numerous (9 total) click event listeners
+// when the save button is clicked the contents of each input field are saved to local storage
 $('#task-9-save').on('click', function(task) {
   task = $('#task-9-input').val();
   localStorage.setItem('task-9', task);
@@ -119,17 +130,23 @@ $('#task-17-save').on('click', function(task) {
   localStorage.setItem('task-17', task);
 });
 
+// any time any of the save buttons are clicked
+// the "last-save" item in local storage is updated to the current date
 allButtons.on('click', function(date) {
   date = moment().format('DD');
   localStorage.setItem('last-save', date);
 });
 
-
+// function checks if the current date is the same as that stored in the "last-save" local storage item
 function newDayCheck(dateNow, lastSave, dateCheck) {
   dateNow = moment().format('DD')
   lastSave = localStorage.getItem('last-save');
   dateCheck = false;
-  if(dateNow > lastSave) {
+  // if the current date is not the same as the value of the "last-save" local storage item
+  // all of the "task" local storage items are removed, therefore the page is reset
+  if(dateNow !== lastSave) {
+    // dateCheck is changed to true to stop the populateTasks function running during page initialisation
+    // this condition is contained within the init function at the top of the script
     dateCheck = true;
     localStorage.removeItem('task-9');
     localStorage.removeItem('task-10');
@@ -144,6 +161,9 @@ function newDayCheck(dateNow, lastSave, dateCheck) {
   return dateCheck
 };
 
+// function populates the input fields with any tasks that are saved within local storage
+// from the current day, based on whether the dateCheck variable is true or false
+// this function only runs if the newDayCheck function returns "false" meaning it isn't a new day
 function populateTasks() {
   let task9 = localStorage.getItem('task-9');
   if (task9 !== null) {
